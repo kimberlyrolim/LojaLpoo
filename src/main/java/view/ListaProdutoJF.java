@@ -8,16 +8,15 @@ import model.dao.ProdutoDAO;
 public class ListaProdutoJF extends javax.swing.JFrame {
 
     ProdutoDAO dao;
-    
+
     public ListaProdutoJF() {
         initComponents();
-    
+
         dao = new ProdutoDAO();
         loadTabelaProduto();
-        
+
         verificarDispinibilidade();
     }
-
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -131,21 +130,21 @@ public class ListaProdutoJF extends javax.swing.JFrame {
     private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoActionPerformed
         CadastroProdutoJD telaCadastro = new CadastroProdutoJD(this, rootPaneCheckingEnabled);
         telaCadastro.setVisible(true);
-        
+
         Produto novoProduto = telaCadastro.getProduto();
         try {
             novoProduto.setDisponivel(true);
-            
+
             dao.persist(novoProduto);
         } catch (Exception ex) {
-            System.out.println("Erro ao cadastrar o produto "+novoProduto.toString()+" \n Erro: "+ex);
+            System.out.println("Erro ao cadastrar o produto " + novoProduto.toString() + " \n Erro: " + ex);
         }
         loadTabelaProduto();
     }//GEN-LAST:event_btnNovoActionPerformed
 
     private void btnInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInfoActionPerformed
-        if(tblProduto.getSelectedRow() != -1){
-            Produto obj_vendedor = (Produto) dao.buscarPorNome((String)tblProduto.getModel().getValueAt(tblProduto.getSelectedRow(), 0)).get();
+        if (tblProduto.getSelectedRow() != -1) {
+            Produto obj_vendedor = (Produto) dao.buscarPorNome((String) tblProduto.getModel().getValueAt(tblProduto.getSelectedRow(), 0)).get();
             JOptionPane.showMessageDialog(rootPane, obj_vendedor.exibirDados());
         } else {
             JOptionPane.showMessageDialog(rootPane, "Selecione um Produto!");
@@ -155,7 +154,7 @@ public class ListaProdutoJF extends javax.swing.JFrame {
     private void btnRemoverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoverActionPerformed
         if (tblProduto.getSelectedRow() != -1) {
             Produto obj_produto = (Produto) dao.buscarPorNome((String) tblProduto.getModel().getValueAt(tblProduto.getSelectedRow(), 0)).get();
-            int op_remover = JOptionPane.showConfirmDialog(rootPane, "Tem certeza que deseja remover " +obj_produto + "?");
+            int op_remover = JOptionPane.showConfirmDialog(rootPane, "Tem certeza que deseja remover " + obj_produto + "?");
             if (op_remover == JOptionPane.YES_OPTION) {
                 try {
                     dao.remover(obj_produto);
@@ -173,7 +172,7 @@ public class ListaProdutoJF extends javax.swing.JFrame {
 
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
         if (tblProduto.getSelectedRow() != -1) {
-            Produto obj_produto = (Produto) dao.buscarPorNome((String)tblProduto.getModel().getValueAt(tblProduto.getSelectedRow(), 0)).get();            
+            Produto obj_produto = (Produto) dao.buscarPorNome((String) tblProduto.getModel().getValueAt(tblProduto.getSelectedRow(), 0)).get();
             CadastroProdutoJD telaEdicao = new CadastroProdutoJD(this, rootPaneCheckingEnabled);
             telaEdicao.setProduto(obj_produto);
 
@@ -190,7 +189,7 @@ public class ListaProdutoJF extends javax.swing.JFrame {
         } else {
             JOptionPane.showMessageDialog(rootPane, "Selecione um produto");
         }
-        
+
     }//GEN-LAST:event_btnEditarActionPerformed
 
     /**
@@ -234,7 +233,7 @@ public class ListaProdutoJF extends javax.swing.JFrame {
             }
         });
     }
-    
+
     public void loadTabelaProduto() {
 
         DefaultTableModel modelo = (DefaultTableModel) tblProduto.getModel();
@@ -251,52 +250,43 @@ public class ListaProdutoJF extends javax.swing.JFrame {
         }
 
     }
-    
-    public void verificarDispinibilidade(){
+
+    public void verificarDispinibilidade() {
         tblProduto.getModel().addTableModelListener(e -> {
-        int row = e.getFirstRow();
-        int col = e.getColumn();
+            int row = e.getFirstRow();
+            int col = e.getColumn();
 
-        // COLUNA 3 é a coluna "Disponível"
-        if (col == 3) {
-            
-            // 1. Captura o estado atual da UI e o nome do produto
-            String nome = (String) tblProduto.getValueAt(row, 0);
-            Boolean novoDisponivel = (Boolean) tblProduto.getValueAt(row, 3);
+            if (col == 3) {
 
-            // Tenta buscar o produto pelo nome
-            dao.buscarPorNome(nome).ifPresent(p -> {
-                int op_edt = JOptionPane.showConfirmDialog(rootPane, 
-                        "Tem certeza que deseja alterar a disponibilidade do produto: " + nome + " para " + (novoDisponivel ? "DISPONÍVEL" : "INDISPONÍVEL") + "? ",
-                        "Confirmação de Disponibilidade", JOptionPane.YES_NO_OPTION);
-                
-                if (op_edt == JOptionPane.YES_OPTION) {
-                    // 2. Se o usuário confirmar, atualiza o OBJETO e tenta persistir
-                    p.setDisponivel(novoDisponivel);
-                    
-                    try {
-                        // TENTA SALVAR NO BANCO
-                        dao.persist(p);
-                        JOptionPane.showMessageDialog(rootPane, "Disponibilidade de '"+nome+"' alterada e salva com sucesso!");
-                        
-                    } catch (Exception ex) {
-                        // SE FALHAR NO BANCO
-                        System.err.println("🚨 ERRO AO PERSISTIR DISPONIBILIDADE 🚨\nProduto: " + p + "\nErro: " + ex);
-                        JOptionPane.showMessageDialog(rootPane, "Erro ao salvar a disponibilidade no banco de dados! Consulte o console para mais detalhes.", "Erro de Persistência", JOptionPane.ERROR_MESSAGE);
-                        
-                        // Recarrega a tabela para reverter a alteração visual para o estado anterior (correto)
-                        loadTabelaProduto(); 
+                String nome = (String) tblProduto.getValueAt(row, 0);
+                Boolean novoDisponivel = (Boolean) tblProduto.getValueAt(row, 3);
+
+                dao.buscarPorNome(nome).ifPresent(p -> {
+                    int op_edt = JOptionPane.showConfirmDialog(rootPane,
+                            "Tem certeza que deseja alterar a disponibilidade do produto: " + nome + " para " + (novoDisponivel ? "DISPONÍVEL" : "INDISPONÍVEL") + "? ",
+                            "Confirmação de Disponibilidade", JOptionPane.YES_NO_OPTION);
+
+                    if (op_edt == JOptionPane.YES_OPTION) {
+                        p.setDisponivel(novoDisponivel);
+
+                        try {
+                            dao.persist(p);
+                            JOptionPane.showMessageDialog(rootPane, "Disponibilidade de '" + nome + "' alterada e salva com sucesso!");
+
+                        } catch (Exception ex) {
+                            System.err.println("🚨 ERRO AO PERSISTIR DISPONIBILIDADE 🚨\nProduto: " + p + "\nErro: " + ex);
+                            JOptionPane.showMessageDialog(rootPane, "Erro ao salvar a disponibilidade no banco de dados! Consulte o console para mais detalhes.", "Erro de Persistência", JOptionPane.ERROR_MESSAGE);
+
+                            loadTabelaProduto();
+                        }
+                    } else {
+                        loadTabelaProduto();
+                        JOptionPane.showMessageDialog(rootPane, "Alteração de disponibilidade cancelada.");
                     }
-                } else {
-                    // 3. Se o usuário clicar em 'Não', REVERTE a alteração visual
-                    // Recarrega a tabela para que o valor exibido volte a ser o valor real do DB
-                    loadTabelaProduto();
-                    JOptionPane.showMessageDialog(rootPane, "Alteração de disponibilidade cancelada.");
-                }
-            });
-        }
-    });
-}
+                });
+            }
+        });
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnEditar;

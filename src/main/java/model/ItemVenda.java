@@ -1,13 +1,33 @@
 package model;
 
-public class ItemVenda {
-    
-    private int id; 
-    private Produto produto;
-    private int quantidade;
-    private double precoUnitario; 
-    private Venda venda;
+import java.io.Serializable;
+import javax.persistence.*;
 
+@Entity 
+@Table(name = "itens_venda")
+public class ItemVenda implements Serializable {
+    
+    @Id 
+    @GeneratedValue(strategy = GenerationType.IDENTITY) 
+    private int id; 
+    
+    @ManyToOne 
+    @JoinColumn(name = "item_produto_fk", nullable = false)
+    private Produto produto;
+    
+    @Column(name = "item_quantidade")
+    private int quantidade;
+    
+    @Column(name = "item_preco_unitario", columnDefinition = "numeric(10,2)")
+    private double precoUnitario; 
+    
+    @ManyToOne 
+    @JoinColumn(name = "venda_id_fk", nullable = false)
+    private Venda venda; 
+
+    public ItemVenda() {
+    }
+    
     public ItemVenda(Produto produto, int quantidade, double precoUnitario) {
         this.produto = produto;
         this.quantidade = quantidade;

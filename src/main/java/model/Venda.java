@@ -100,23 +100,19 @@ public class Venda implements Serializable {
     }
 
     public void adicionarItem(ItemVenda item) {
-        // Garante que a lista está inicializada antes de adicionar
+
         if (this.itensVenda == null) {
             this.itensVenda = new java.util.ArrayList<>();
         }
         this.itensVenda.add(item);
-        // Configura a relação bidirecional (ItemVenda aponta de volta para esta Venda)
         item.setVenda(this);
     }
 
     public void atualizarValorTotal() {
         double total = 0.0;
-        // Percorre todos os itens da lista
         for (ItemVenda item : getItensVenda()) {
-            // Usa o método calcularSubTotal() da classe ItemVenda
             total += item.calcularSubTotal();
         }
-        // Define o valor total da venda
         this.valorVenda = total;
     }
 

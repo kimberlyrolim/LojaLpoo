@@ -13,7 +13,7 @@ public class Produto implements Serializable {
     @Id
     @Column(name = "prod_id")
     private int id;
-   
+    
     @Column(name = "prod_nome")
     private String prodNome;
     
@@ -57,11 +57,9 @@ public class Produto implements Serializable {
     public void setProdValor(double prodValor) {
         this.prodValor = prodValor;
     }
-  
- 
+    
     public Produto(){
         prodDisponivel = true;
-        vendas = new ArrayList<>();
     }
     
     public String exibirDados(){
@@ -76,12 +74,6 @@ public class Produto implements Serializable {
         return aux;
     }
     
-    @OneToMany(mappedBy = "produto")//um produto várias vendas
-    private List<Venda> vendas;
-    
-    public List<Venda> getVendas() { return vendas; }
-    public void setVendas(List<Venda> vendas) { this.vendas = vendas; }
-
     public Boolean getDisponivel() {
         return prodDisponivel;
     }
@@ -95,6 +87,4 @@ public class Produto implements Serializable {
         return this.prodNome;
     }
 
-
-    
 }

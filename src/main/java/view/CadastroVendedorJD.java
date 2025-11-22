@@ -146,17 +146,15 @@ public class CadastroVendedorJD extends javax.swing.JDialog {
         try {
             String cpf = txtCPF.getText();
             if (!isValidCPF(cpf)) {
-            JOptionPane.showMessageDialog(rootPane, "CPF inválido! Por favor, verifique os números e o formato 000.000.000-00.");                
-            return; 
+                JOptionPane.showMessageDialog(rootPane, "CPF inválido! Por favor, verifique os números e o formato 000.000.000-00.");
+                return;
             }
             this.vendedor.setNome(txtNome.getText());
             this.vendedor.setCPF(txtCPF.getText());
-            // sintaxe para conversão: LocalDate.parse(String com data, máscara)
             this.vendedor.setDataNascimento(LocalDate.parse(txtDtNascimento.getText(), formatter));
             this.vendedor.setTelefone(txtTelefone.getText());
             double salario = Double.parseDouble(txtSalario.getText());
             this.vendedor.setSalario(salario);
-
 
             this.dispose();
         } catch (DateTimeParseException e1) {

@@ -14,9 +14,6 @@ public class ListaVendas extends javax.swing.JFrame {
 
     VendaDAO dao;
 
-    /**
-     * Creates new form ListaVendas
-     */
     public ListaVendas() {
         initComponents();
         dao = new VendaDAO();
@@ -26,11 +23,15 @@ public class ListaVendas extends javax.swing.JFrame {
     public void loadVendas() {
         DefaultTableModel modelo = (DefaultTableModel) tblVendas.getModel();
         modelo.setNumRows(0);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
         for (Venda obj : dao.listaVendas()) {
+
             Object[] linha = {
-                obj,
-                obj.getProduto(),
-                obj.getCliente()
+                obj.getDataVenda().format(formatter),
+                obj.getCliente(),
+                String.format("R$ %.2f", obj.getValorVenda())
             };
             modelo.addRow(linha);
         }
@@ -66,7 +67,7 @@ public class ListaVendas extends javax.swing.JFrame {
                 {null, null, null}
             },
             new String [] {
-                "Data Venda", "Produto", "Cliente"
+                "Data Venda", "Cliente", "Valor Total"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -147,14 +148,11 @@ public class ListaVendas extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoActionPerformed
-        // 1. Abrir a aplicação CadastroVendaJD
         CadastroVendaJD telaVenda = new CadastroVendaJD(this, rootPaneCheckingEnabled);
         telaVenda.setVisible(true);
 
-        // 2. recuperar o objeto Venda
         Venda novoObj = telaVenda.getVenda();
 
-        // 3. Se o objeto não for null persistir no BD
         if (novoObj != null) {
             try {
                 dao.persist(novoObj);
@@ -168,9 +166,20 @@ public class ListaVendas extends javax.swing.JFrame {
 
     private void btnRemoverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoverActionPerformed
         if (tblVendas.getSelectedRow() != -1) {
-            Venda obj = (Venda) tblVendas.getModel().getValueAt(tblVendas.getSelectedRow(), 0);
-            String txtVenda = "Venda: " + obj.getProduto().getProdNome() + "cliente: " + obj.getCliente().getNome() + ", vendedor: " + obj.getVendedor().getNome();
+            
+            Venda obj = dao.listaVendas().get(tblVendas.getSelectedRow());
+
+            String itensStr = "Sem Itens";
+            if (obj.getItensVenda() != null && !obj.getItensVenda().isEmpty()) {
+                itensStr = obj.getItensVenda().get(0).getProduto().getProdNome();
+                if (obj.getItensVenda().size() > 1) {
+                    itensStr += " e mais " + (obj.getItensVenda().size() - 1) + " itens";
+                }
+            }
+
+            String txtVenda = "Venda: " + itensStr + ", Cliente: " + obj.getCliente().getNome() + ", Vendedor: " + obj.getVendedor().getNome();
             int op_remover = JOptionPane.showConfirmDialog(rootPane, "Tem certeza que deseja remover " + txtVenda + "?");
+
             if (op_remover == JOptionPane.YES_OPTION) {
                 try {
                     dao.remover(obj);
@@ -188,8 +197,13 @@ public class ListaVendas extends javax.swing.JFrame {
 
     private void btnInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInfoActionPerformed
         if (tblVendas.getSelectedRow() != -1) {
-            Venda obj = (Venda) tblVendas.getModel().getValueAt(tblVendas.getSelectedRow(), 0);
-            JOptionPane.showMessageDialog(rootPane, obj.exibirDados());
+            Venda obj = dao.listaVendas().get(tblVendas.getSelectedRow());
+
+            if (obj != null) {
+                JOptionPane.showMessageDialog(rootPane, obj.exibirDados());
+            } else {
+                JOptionPane.showMessageDialog(rootPane, "Erro ao carregar dados da Venda.");
+            }
         } else {
             JOptionPane.showMessageDialog(rootPane, "Selecione uma linha");
         }
@@ -197,15 +211,14 @@ public class ListaVendas extends javax.swing.JFrame {
 
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
         if (tblVendas.getSelectedRow() != -1) {
-            Venda obj = (Venda) tblVendas.getModel().getValueAt(tblVendas.getSelectedRow(), 0);
+            Venda obj = dao.listaVendas().get(tblVendas.getSelectedRow());
+
             CadastroVendaJD telaVenda = new CadastroVendaJD(this, rootPaneCheckingEnabled);
             telaVenda.setVenda(obj);
             telaVenda.setVisible(true);
 
-            // 2. recuperar o objeto Venda
             Venda vendaEdt = telaVenda.getVenda();
 
-            // 3. Se o objeto não for null persistir no BD
             if (vendaEdt != null) {
                 try {
                     dao.persist(vendaEdt);
